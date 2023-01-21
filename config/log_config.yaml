@@ -1,0 +1,81 @@
+version: 1
+objects:
+  queue:
+    class: queue.Queue
+    maxsize: -1
+
+formatters:
+  standard:
+    format: '%(asctime)s %(levelname)s %(message)s'
+    datefmt: '%Y-%m-%d %H:%M'
+  withsource:
+    format: "%(asctime)s %(ip)-15s %(id)-3d %(levelname)-7s %(message)s"
+    datefmt: '%Y-%m-%d %H:%M'
+  detail:
+    format: "%(asctime)s %(ip)-15s %(id)-3d %(levelname)-7s [%(filename)s:%(funcName)s:%(lineno)d] %(message)s"
+    datefmt: '%Y-%m-%d %H:%M'
+
+filters:
+  detailfilter:
+    (): log_utils.logger_utils.DetailFormaterFilter
+    ip: '000.000.000.000'
+    id: 000
+
+handlers:
+  # Console handler
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: withsource
+    stream: ext://sys.stdout
+    filters: [detailfilter]
+
+  # File handler
+  file:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    filename: "logs/chord.log"
+    when: 'midnight'
+    backupCount: 10
+    encoding: 'utf-8'
+    formatter: standard
+
+  # AWS S3 handler
+  # aws_s3:
+  #   class: log_utils.aws_logging_handlers.s3.S3Handler
+  #   level: DEBUG
+  #   formatter: standard
+  #   bucket: 'chord-logs'
+  #   key: 'chord-logs'
+  #   time_rotation: 60
+  #   max_file_size_bytes: 104857600
+  aws_cw:
+    class: log_utils.aws_logging_handlers.cloudwatch.CloudwatchHandler
+    level: DEBUG
+    formatter: standard
+    region: 'ap-northeast-1'
+    log_group: 'chord-cw-log-group'
+
+  # Queue handler
+  queue_listener:
+    class: log_utils.logger_utils.QueueListenerHandler
+    level: DEBUG
+    handlers:
+      - cfg://handlers.console
+      - cfg://handlers.aws_cw
+      - cfg://handlers.file
+    queue: cfg://objects.queue
+
+loggers:
+  chord:
+    level: DEBUG
+    handlers:
+      - queue_listener
+    propagate: false
+  
+
+root:
+  level: DEBUG
+  handlers:
+    - console
+    - file

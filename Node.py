@@ -5,7 +5,11 @@ import sys
 import time
 import os
 from collections import OrderedDict
-from utils import getHash, getSelfIP
+from utils import getHash, getSelfIP, setup_logging
+import argparse
+from scripts.list_all_instances import get_running_instances
+import logging
+
 
 # Default values if command line arguments not given
 IP = getSelfIP()
@@ -15,27 +19,31 @@ buffer = 4096
 MAX_BITS = 4   # 10-bit
 MAX_NODES = 2 ** MAX_BITS
 
+
 class Node:
-    def __init__(self, ip, port):
+    def __init__(self, args):
         self.filenameList = []
-        self.ip = ip or getSelfIP()
-        self.port = port or PORT
-        self.address = (ip, port)
-        self.id = getHash(ip + ":" + str(port), MAX_NODES)
-        self.pred = (ip, port)            # Predecessor of this node
+        self.ip = args.ip or getSelfIP()
+        self.port = args.port or PORT
+        self.address = (self.ip, self.port)
+        self.id = getHash(self.ip + ":" + str(self.port), MAX_NODES)
+        self.pred = (self.ip, self.port)           # Predecessor of this node
         self.predID = self.id
-        self.succ = (ip, port)            # Successor to this node
+        self.succ = (self.ip, self.port)           # Successor to this node
         self.succID = self.id
         self.fingerTable = OrderedDict()        # Dictionary: key = IDs and value = (IP, port) tuple
+        self.logger = logging.LoggerAdapter(logging.getLogger("chord"), {"ip": self.ip, "id": self.id})
         # Making sockets
             # Server socket used as listening socket for incoming connections hence threaded
         try:
+            binding_ip = '0.0.0.0'
             self.ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.ServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.ServerSocket.bind(('0.0.0.0', self.port))
+            self.ServerSocket.bind((binding_ip, self.port))
             self.ServerSocket.listen()
+            self.logger.debug(f"Bind on {binding_ip}:{self.port}")
         except socket.error as e:
-            print("Socket not opened, ", e)
+            self.logger.error(f"Socket not opened, {e}")
 
     def listenThread(self):
         # Storing the IP and port in address and saving the connection and threading
@@ -45,7 +53,8 @@ class Node:
                 connection.settimeout(120)
                 threading.Thread(target=self.connectionThread, args=(connection, address)).start()
             except socket.error:
-                pass#print("Error: Connection not accepted. Try again.")
+                # self.logger.error("Error: Connection not accepted. Try again.")
+                pass
 
     # Thread for each peer connection
     def connectionThread(self, connection, address):
@@ -64,23 +73,23 @@ class Node:
             self.transferFile(connection, address, rDataList)
             self.printMenu()
         elif connectionType == 2:
-            #print("Ping recevied")
+            self.logger.debug(f"Ping recevied")
             connection.sendall(pickle.dumps(self.pred))
         elif connectionType == 3:
-            #print("Lookup request recevied")
+            self.logger.debug("Lookup request recevied")
             self.lookupID(connection, address, rDataList)
         elif connectionType == 4:
-            #print("Predecessor/Successor update request recevied")
+            self.logger.debug("Predecessor/Successor update request recevied")
             if rDataList[1] == 1:
                 self.updateSucc(rDataList)
             else:
                 self.updatePred(rDataList)
         elif connectionType == 5:
-            # print("Update Finger Table request recevied")
+            self.logger.debug("Update Finger Table request recevied")
             self.updateFTable()
             connection.sendall(pickle.dumps(self.succ))
         else:
-            print("Problem with connection type")
+            self.logger.warning("Problem with connection type")
         #connection.close()
     
     # Deals with join network request by other node
@@ -108,25 +117,25 @@ class Node:
         fileID = getHash(filename, MAX_NODES)
         # IF client wants to download file
         if choice == 0:
-            print("Download request for file:", filename)
+            self.logger.info("Download request for file:", filename)
             try:
                 # First it searches its own directory (fileIDList). If not found, send does not exist
                 if filename not in self.filenameList:
                     connection.send("NotFound".encode('utf-8'))
-                    print("File not found")
+                    self.logger.warning("File not found")
                 else:   # If file exists in its directory   # Sending DATA LIST Structure (sDataList):
                     connection.send("Found".encode('utf-8'))
                     self.sendFile(connection, filename)
             except ConnectionResetError as error:
-                print(error, "\nClient disconnected\n\n")
+                self.logger.error(error, "\nClient disconnected\n\n")
         # ELSE IF client wants to upload something to network
         elif choice == 1 or choice == -1:
-            print("Receiving file:", filename)
+            self.logger.info("Receiving file:", filename)
             fileID = getHash(filename, MAX_NODES)
-            print("Uploading file ID:", fileID)
+            self.logger.info("Uploading file ID:", fileID)
             self.filenameList.append(filename)
             self.receiveFile(connection, filename)
-            print("Upload complete")
+            self.logger.info("Upload complete")
             # Replicating file to successor as well
             if choice == 1:
                 if self.address != self.succ:
@@ -173,15 +182,7 @@ class Node:
         self.predID = getHash(newPred[0] + ":" + str(newPred[1]), MAX_NODES)
         # print("Updated pred to", self.predID)
 
-    def start(self):
-        # Accepting connections from other threads
-        threading.Thread(target=self.listenThread, args=()).start()
-        threading.Thread(target=self.pingSucc, args=()).start()
-        # In case of connecting to other clients
-        while True:
-            print("Listening to other clients")   
-            self.asAClientThread()
-    
+
     def pingSucc(self):
         while True:
             # Ping every 5 seconds
@@ -190,13 +191,13 @@ class Node:
             if self.address == self.succ:
                 continue
             try:
-                #print("Pinging succ", self.succ)
+                self.logger.debug(f"Pinging succ {self.succ}")
                 pSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 pSocket.connect(self.succ)
                 pSocket.sendall(pickle.dumps([2]))  # Send ping request
                 recvPred = pickle.loads(pSocket.recv(buffer))
             except:
-                print("\nOffline node dedected!\nStabilizing...")
+                self.logger.info("\nOffline node detected!\nStabilizing...")
                 # Search for the next succ from the F table
                 newSuccFound = False
                 value = ()
@@ -244,16 +245,16 @@ class Node:
         elif userChoice == "5":
             self.printFTable()
         elif userChoice == "6":
-            print("My ID:", self.id, "Predecessor:", self.predID, "Successor:", self.succID)
+            self.logger.info(f"My ID: {self.id} Predecessor: {self.predID}, Successor: {self.succID}")
         # Reprinting Menu
         # self.printMenu()
 
     def sendJoinRequest(self, ip, port):
-        print("start sendJoinRequest")
+        self.logger.debug("start sendJoinRequest")
         try:
             recvIPPort = self.getSuccessor((ip, port), self.id)
             peerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            print("sendJoinRequest", recvIPPort)
+            self.logger.debug(f"sendJoinRequest to {recvIPPort}")
             peerSocket.connect(recvIPPort)
             sDataList = [0, self.address]
             
@@ -269,13 +270,13 @@ class Node:
             # Tell pred to update its successor which is now me
             sDataList = [4, 1, self.address]
             pSocket2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            print("sendJoinRequest", self.pred)
+            self.logger.debug(f"sendJoinRequest to {self.pred}")
             pSocket2.connect(self.pred)
             pSocket2.sendall(pickle.dumps(sDataList))
             pSocket2.close()
             peerSocket.close()
         except socket.error:
-            print("Socket error. Recheck IP/Port.")
+            self.logger.error(f"Socket error. Recheck IP/Port {ip}:{port}.")
     
     def leaveNetwork(self):
         # First inform my succ to update its pred
@@ -314,7 +315,10 @@ class Node:
         print(self.address, "has left the network")
     
     def uploadFile(self, filename, recvIPport, replicate):
-        print("Uploading file", filename)
+        self.logger.info(f"Uploading file {filename}")
+        fileID = getHash(filename, MAX_NODES)
+        self.logger.info(f"Uploading file ID: {fileID}")
+        
         # If not found send lookup request to get peer to upload file
         sDataList = [1]
         if replicate:
@@ -331,11 +335,11 @@ class Node:
             cSocket.sendall(pickle.dumps(sDataList))
             self.sendFile(cSocket, filename)
             cSocket.close()
-            print("File uploaded")
+            self.logger.info("File uploaded")
         except IOError:
-            print("File not in directory")
+            self.logger.info("File not in directory")
         except socket.error:
-            print("Error in uploading file")
+            self.logger.info("Error in uploading file")
     
     def downloadFile(self, filename):
         print("Downloading file", filename)
@@ -349,9 +353,9 @@ class Node:
         # Receiving confirmation if file found or not
         fileData = cSocket.recv(buffer)
         if fileData == b"NotFound":
-            print("File not found:", filename)
+            self.logger.info(f"File not found: filename")
         else:
-            print("Receiving file:", filename)
+            self.logger.info(f"Receiving file: filename")
             self.receiveFile(cSocket, filename)
 
 
@@ -361,7 +365,7 @@ class Node:
         while rDataList[0] == 1:
             peerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                print("getSuccessor", recvIPPort)
+                # print("getSuccessor", recvIPPort)
                 peerSocket.connect(recvIPPort)
                 # Send continous lookup requests until required peer ID
                 sDataList = [3, keyID]
@@ -372,7 +376,8 @@ class Node:
                 peerSocket.close()
             except socket.error:
                 time.sleep(.4)
-                print("Connection denied while getting Successor")
+                self.logger.error(f"Connection denied while getting Successor: {address}")
+                raise socket.error
         # print(rDataList)
         return recvIPPort
     
@@ -403,7 +408,7 @@ class Node:
                 if here == self.succ:
                     break
             except socket.error:
-                print("Connection denied")
+                self.logger.error("Connection denied")
 
     def sendFile(self, connection, filename):
         print("Sending file:", filename)
@@ -472,23 +477,77 @@ class Node:
                 self.downloadFile(filename)
                     # connection.send(pickle.dumps(True))
 
+
     def printMenu(self):
         print("\n1. Join Network\n2. Leave Network\n3. Upload File\n4. Download File")
-        print("5. Print Finger Table\n6. Print my predecessor and successor")
+        print("5. Print Finger Table\n6. Print my predecessor and successor\n")
+
 
     def printFTable(self):
-        print("Printing F Table")
+        self.logger.info("Printing F Table")
         for key, value in self.fingerTable.items(): 
-            print("KeyID:", key, "Value", value)
+            self.logger.info(f"KeyID: {key} Value {value}")
+
+
+    def start(self):
+        # Accepting connections from other threads
+        threading.Thread(target=self.listenThread, args=()).start()
+        threading.Thread(target=self.pingSucc, args=()).start()
+        # In case of connecting to other clients
+        while True:
+            self.logger.info("Listening to other clients")   
+            self.asAClientThread()
+
+
+class TestNode(Node):
+    def start(self):
+        # Accepting connections from other threads
+        threading.Thread(target=self.listenThread, args=()).start()
+        threading.Thread(target=self.pingSucc, args=()).start()
+
+        # get instances list
+        instances = get_running_instances()
+        for instance in instances:
+            # skip self
+            if instance.private_ip_address == self.ip:
+                continue
+
+            # try to join the chord network
+            try:
+                self.sendJoinRequest(instance.private_ip_address, self.port)
+                break
+            except Exception as e:
+                self.logger.error("join failed: ", instance.id, instance.private_ip_address, e)
+                continue
+
+        # In case of connecting to other clients
+        while True:
+            self.logger.info("Listening to other clients")   
+            self.asAClientThread()
+
+
+def node_type_parser(args):
+
+    node_type = {
+        0: Node,
+        1: TestNode
+    }
+
+    return node_type[args.node_type]
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Arguments not supplied (Defaults used)")
-    else:
-        IP = sys.argv[1]
-        PORT = int(sys.argv[2])
 
-    myNode = Node(IP, PORT)
-    print("My ID is:", myNode.id)
+    from log_utils.logger_init import init_log
+    init_log("./config/log_config.yaml")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ip', type=str, required=False)
+    parser.add_argument('--port', type=int, required=False)
+    parser.add_argument('--node_type', type=int, required=False, choices=[0,1], default=1, help="0: direct join node , 1: cli")
+    args = parser.parse_args()
+
+    myNode = node_type_parser(args)(args)
+    myNode.logger.info("test")
+    myNode.logger.info(f"My ID is: {myNode.id}")
     myNode.start()
     myNode.ServerSocket.close()
