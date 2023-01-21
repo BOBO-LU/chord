@@ -21,45 +21,57 @@ telnet monitoring.ap-northeast-1.amazonaws.com 443
 
 # boto3
 sudo yum install -y python3-pip python3 python3-setuptools -y
-pip3 install boto3
+pip3 install boto3 pytz pyyaml
 aws sts get-caller-identity
 
 # setup asg and as
 ## https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html
 ## https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_PutMetricAlarm.html
+python3 create_asg.py
+python3 create_scaling_policy.py
+
+# launch ec2
+yum install cloud-init
+chmod 777 /home/ec2-user/chord/startup.sh
+## check userdata
+cat /tmp/testfile.txt
+sudo cat /var/log/cloud-init-output.log
 
 
 # TODO:
-- change sg ip to coresponding sg
+- change sg ip to coresponding sg in asg
 - asg describe / ec2 describe script => to get ip
 - cloudwatch agent install script
-- lambda agg metrics ?
 - run ssm in auto scaling group -> tag association # https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-state-manager-asg.html
 ! loading time difference 
 
 # steps:
 Finish：
-- write chord
+- write chord  (clone others)
 - test chord locally
-- create sg
-- create iam
-- create 2 ec2
-- test socket connection between two ec2
-- test chord on ec2
-- launch cw agent wizard
+- create security group
+- create IAM
+- create 2 EC2
+- test socket connection between two EC2
+- test chord on EC2
+- launch cloudwatch agent wizard
 - modify agent config
 - upload config to parameter store
-- start cw agent
-- test connection with cw
-- use ssm to start cw agent on all instance
-- check cw metrics
+- start cloudwatch agent
+- test connection with cloudwatch
+- use systems manager agent to start cloudwatch agent on all instance
+- check cloudwatch metrics
 - test alarm
-
-TODO:
-- prepare ec2 start script & chord start script
+- prepare ec2 start script (user_data) & chord start script
 - create ec2 AMI
 - create launch template
-- create asg
+- create auto scaling group
 - create scaling policy
-- create metric alarm and attach to policy
-- finish !!
+- create cloud watch metric alarm and attach it to scaling policy
+
+
+TODO:
+- write a client to connect nodes in auto scaling group
+- upload/download files
+- test auto scaling
+- finish chord deployment!! 

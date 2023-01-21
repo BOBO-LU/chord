@@ -5,7 +5,7 @@ import sys
 import time
 import os
 from collections import OrderedDict
-from utils import getHash, getSelfIP, setup_logging
+from utils import getHash, getSelfIP
 import argparse
 from scripts.list_all_instances import get_running_instances
 import logging

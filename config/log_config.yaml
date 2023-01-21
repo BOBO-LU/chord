@@ -38,21 +38,13 @@ handlers:
     when: 'midnight'
     backupCount: 10
     encoding: 'utf-8'
-    formatter: standard
+    formatter: withsource
 
-  # AWS S3 handler
-  # aws_s3:
-  #   class: log_utils.aws_logging_handlers.s3.S3Handler
-  #   level: DEBUG
-  #   formatter: standard
-  #   bucket: 'chord-logs'
-  #   key: 'chord-logs'
-  #   time_rotation: 60
-  #   max_file_size_bytes: 104857600
+  # AWS cw handler
   aws_cw:
     class: log_utils.aws_logging_handlers.cloudwatch.CloudwatchHandler
     level: DEBUG
-    formatter: standard
+    formatter: withsource
     region: 'ap-northeast-1'
     log_group: 'chord-cw-log-group'
 
