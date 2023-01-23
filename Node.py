@@ -130,9 +130,9 @@ class Node:
                 self.logger.error(error, "\nClient disconnected\n\n")
         # ELSE IF client wants to upload something to network
         elif choice == 1 or choice == -1:
-            self.logger.info("Receiving file:", filename)
+            self.logger.info(f"Receiving file: {f}")
             fileID = getHash(filename, MAX_NODES)
-            self.logger.info("Uploading file ID:", fileID)
+            self.logger.info(f"Uploading file ID: {fileID}")
             self.filenameList.append(filename)
             self.receiveFile(connection, filename)
             self.logger.info("Upload complete")
@@ -277,7 +277,8 @@ class Node:
             peerSocket.close()
         except socket.error:
             self.logger.error(f"Socket error. Recheck IP/Port {ip}:{port}.")
-    
+            raise socket.error
+
     def leaveNetwork(self):
         # First inform my succ to update its pred
         pSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -514,11 +515,14 @@ class TestNode(Node):
 
             # try to join the chord network
             try:
+                self.logger.info(f"try to join {instance.private_ip_address}")
                 self.sendJoinRequest(instance.private_ip_address, self.port)
                 break
-            except Exception as e:
-                self.logger.error("join failed: ", instance.id, instance.private_ip_address, e)
+            except socket.error as e:
+                self.logger.error(f"join failed (socket error): {instance.id}, {instance.private_ip_address}, {e}")
                 continue
+            except Exception as e:
+                self.logger.error(f"join failed ({e}): ")
 
         # In case of connecting to other clients
         while True:

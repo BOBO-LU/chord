@@ -49,12 +49,12 @@ response = client.put_metric_alarm(
     ],
     EvaluationPeriods=5,
     DatapointsToAlarm=2,
-    Threshold=35,
+    Threshold=37,
     ComparisonOperator='GreaterThanOrEqualToThreshold', # |'GreaterThanThreshold'|'LessThanThreshold'|'LessThanOrEqualToThreshold'|'LessThanLowerOrGreaterThanUpperThreshold'|'LessThanLowerThreshold'|'GreaterThanUpperThreshold',
     Metrics=[
         {
             'Id': 'disk_avg_query',
-            'Expression': "SELECT AVG(disk_used_percent) FROM SCHEMA(CWAgent, device,fstype,host,path) WHERE path = '/'",
+            'Expression': "SELECT AVG(disk_used_percent) FROM SCHEMA(CWAgent, AutoScalingGroupName,device,fstype,path) WHERE path = '/' AND AutoScalingGroupName = 'chord-asg-sdk-test'",
             'ReturnData': True,
             'Period': 60
         },
@@ -85,7 +85,7 @@ response = client.put_metric_alarm(
     Metrics=[
         {
             'Id': 'disk_avg_query',
-            'Expression': "SELECT AVG(disk_used_percent) FROM SCHEMA(CWAgent, device,fstype,host,path) WHERE path = '/'",
+            'Expression': "SELECT AVG(disk_used_percent) FROM SCHEMA(CWAgent, AutoScalingGroupName,device,fstype,path) WHERE path = '/' AND AutoScalingGroupName = 'chord-asg-sdk-test'",
             'ReturnData': True,
             'Period': 60
         },

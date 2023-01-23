@@ -1,0 +1,75 @@
+2023-01-22 13:50 000.000.000.000 0   INFO    Start logging ...
+2023-01-22 13:50 172.31.22.243   8   DEBUG   Bind on 0.0.0.0:6432
+2023-01-22 13:50 172.31.22.243   8   INFO    test
+2023-01-22 13:50 172.31.22.243   8   INFO    My ID is: 8
+2023-01-22 13:50 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:50 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.26.59', 6432)
+2023-01-22 13:50 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.26.59:6432.
+2023-01-22 13:50 172.31.22.243   8   INFO    Listening to other clients
+2023-01-22 13:50 172.31.22.243   8   INFO    My ID: 8 Predecessor: 8, Successor: 8
+2023-01-22 13:50 172.31.22.243   8   INFO    Listening to other clients
+2023-01-22 13:50 000.000.000.000 0   INFO    Start logging ...
+2023-01-22 13:50 172.31.22.243   8   DEBUG   Bind on 0.0.0.0:6432
+2023-01-22 13:50 172.31.22.243   8   INFO    test
+2023-01-22 13:50 172.31.22.243   8   INFO    My ID is: 8
+2023-01-22 13:50 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:51 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.26.59', 6432)
+2023-01-22 13:51 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.26.59:6432.
+2023-01-22 13:51 172.31.22.243   8   INFO    finish init join request
+2023-01-22 13:51 172.31.22.243   8   INFO    Listening to other clients
+2023-01-22 13:53 000.000.000.000 0   INFO    Start logging ...
+2023-01-22 13:53 172.31.22.243   8   DEBUG   Bind on 0.0.0.0:6432
+2023-01-22 13:53 172.31.22.243   8   INFO    test
+2023-01-22 13:53 172.31.22.243   8   INFO    My ID is: 8
+2023-01-22 13:53 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:53 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.26.59', 6432)
+2023-01-22 13:53 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.26.59:6432.
+2023-01-22 13:53 172.31.22.243   8   ERROR   join failed (socket error): {instance.id}, {instance.private_ip_address}, {e}}
+2023-01-22 13:53 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:53 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.20.218', 6432)
+2023-01-22 13:53 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.20.218:6432.
+2023-01-22 13:53 172.31.22.243   8   ERROR   join failed (socket error): {instance.id}, {instance.private_ip_address}, {e}}
+2023-01-22 13:53 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:53 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.26.78', 6432)
+2023-01-22 13:53 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.26.78:6432.
+2023-01-22 13:53 172.31.22.243   8   ERROR   join failed (socket error): {instance.id}, {instance.private_ip_address}, {e}}
+2023-01-22 13:53 172.31.22.243   8   INFO    Listening to other clients
+2023-01-22 13:54 000.000.000.000 0   INFO    Start logging ...
+2023-01-22 13:54 172.31.22.243   8   DEBUG   Bind on 0.0.0.0:6432
+2023-01-22 13:54 172.31.22.243   8   INFO    test
+2023-01-22 13:54 172.31.22.243   8   INFO    My ID is: 8
+2023-01-22 13:54 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:54 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.26.59', 6432)
+2023-01-22 13:54 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.26.59:6432.
+2023-01-22 13:54 172.31.22.243   8   ERROR   join failed (socket error): i-0903312832cfb00b7, 172.31.26.59, 
+2023-01-22 13:54 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:54 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.20.218', 6432)
+2023-01-22 13:54 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.20.218:6432.
+2023-01-22 13:54 172.31.22.243   8   ERROR   join failed (socket error): i-0d858abee47f6bcd8, 172.31.20.218, 
+2023-01-22 13:54 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:54 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.26.78', 6432)
+2023-01-22 13:54 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.26.78:6432.
+2023-01-22 13:54 172.31.22.243   8   ERROR   join failed (socket error): i-0648036e26547672d, 172.31.26.78, 
+2023-01-22 13:54 172.31.22.243   8   INFO    Listening to other clients
+2023-01-22 13:54 000.000.000.000 0   INFO    Start logging ...
+2023-01-22 13:54 172.31.22.243   8   DEBUG   Bind on 0.0.0.0:6432
+2023-01-22 13:54 172.31.22.243   8   INFO    test
+2023-01-22 13:54 172.31.22.243   8   INFO    My ID is: 8
+2023-01-22 13:54 172.31.22.243   8   INFO    try to join 172.31.26.59
+2023-01-22 13:54 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:54 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.26.59', 6432)
+2023-01-22 13:54 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.26.59:6432.
+2023-01-22 13:54 172.31.22.243   8   ERROR   join failed (socket error): i-0903312832cfb00b7, 172.31.26.59, 
+2023-01-22 13:54 172.31.22.243   8   INFO    try to join 172.31.20.218
+2023-01-22 13:54 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:54 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.20.218', 6432)
+2023-01-22 13:54 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.20.218:6432.
+2023-01-22 13:54 172.31.22.243   8   ERROR   join failed (socket error): i-0d858abee47f6bcd8, 172.31.20.218, 
+2023-01-22 13:54 172.31.22.243   8   INFO    try to join 172.31.26.78
+2023-01-22 13:54 172.31.22.243   8   DEBUG   start sendJoinRequest
+2023-01-22 13:54 172.31.22.243   8   ERROR   Connection denied while getting Successor: ('172.31.26.78', 6432)
+2023-01-22 13:54 172.31.22.243   8   ERROR   Socket error. Recheck IP/Port 172.31.26.78:6432.
+2023-01-22 13:54 172.31.22.243   8   ERROR   join failed (socket error): i-0648036e26547672d, 172.31.26.78, 
+2023-01-22 13:54 172.31.22.243   8   INFO    Listening to other clients
+2023-01-22 13:55 172.31.22.243   8   INFO    My ID: 8 Predecessor: 8, Successor: 8
+2023-01-22 13:55 172.31.22.243   8   INFO    Listening to other clients

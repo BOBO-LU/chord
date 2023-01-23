@@ -25,7 +25,7 @@ handlers:
   # Console handler
   console:
     class: logging.StreamHandler
-    level: DEBUG
+    level: INFO
     formatter: withsource
     stream: ext://sys.stdout
     filters: [detailfilter]

@@ -13,6 +13,7 @@ python3 Node.py # start chord node
 sudo yum install amazon-cloudwatch-agent -y
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
+aws ssm put-parameter --region ap-northeast-1 --name AmazonCloudWatch-linux --type String --value file:~/chord/config/config.json --overwrite
 
 # cloudwatch verification
 sudo yum install telnet -y
@@ -36,6 +37,8 @@ chmod 777 /home/ec2-user/chord/startup.sh
 ## check userdata
 cat /tmp/testfile.txt
 sudo cat /var/log/cloud-init-output.log
+## set user-template version
+aws ec2 modify-launch-template --launch-template-id "lt-036e6da40dea7e53c" --default-version "9" --region "ap-northeast-1"
 
 
 # TODO:
