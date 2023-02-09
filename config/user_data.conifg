@@ -21,5 +21,5 @@ Content-Disposition: attachment; filename="userdata.txt"
 /bin/echo "Hello World" >> /tmp/testfile.txt
 cd /home/ec2-user/chord
 /usr/bin/python3 -m pip install boto3 PyYAML pytz
-sh /home/ec2-user/startup.sh
+sh /home/ec2-user/chord/startup.sh
 --//--

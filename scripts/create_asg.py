@@ -24,8 +24,8 @@ response = client.create_auto_scaling_group(
     AutoScalingGroupName='chord-asg-sdk-test',
     # LaunchConfigurationName='string',
     LaunchTemplate={
-        'LaunchTemplateId': 'lt-036e6da40dea7e53c',
-        # 'LaunchTemplateName': 'chord-ami-lauch-template',
+        # 'LaunchTemplateId': 'lt-036e6da40dea7e53c',
+        'LaunchTemplateName': 'chord-ami-lauch-template',
         'Version': '$Latest'
     },
     # InstanceId='string',
@@ -34,7 +34,7 @@ response = client.create_auto_scaling_group(
     DesiredCapacity=1,
     DefaultCooldown=30,
     AvailabilityZones=[
-        'ap-northeast-1d',
+        'ap-northeast-1a',
     ],
     # LoadBalancerNames=[
     #     'string',
@@ -45,7 +45,7 @@ response = client.create_auto_scaling_group(
     # HealthCheckType='string',
     # HealthCheckGracePeriod=123,
     # PlacementGroup='string',
-    VPCZoneIdentifier='subnet-032777a8d3278e987',
+    # VPCZoneIdentifier='subnet-032777a8d3278e987',
     TerminationPolicies=[
         'Default',
     ],

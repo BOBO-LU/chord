@@ -2,17 +2,19 @@
 sudo yum install git -y  
 sudo yum install tmux  
 git clone https://github.com/BOBO-LU/chord.git  
+cd chord
 python3 utils.py 1 10 100 # generate dummy files  
-python3 Node.py # start chord node  
+
 
 
 # cloudwatch monitor disk usage
-## https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-on-EC2-Instance-fleet.html#start-CloudWatch-Agent-EC2-fleet
-## https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/create-cloudwatch-agent-configuration-file-wizard.html
-## https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html
+### https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-on-EC2-Instance-fleet.html#start-CloudWatch-Agent-EC2-fleet
+### https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/create-cloudwatch-agent-configuration-file-wizard.html
+### https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html
 sudo yum install amazon-cloudwatch-agent -y   
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard  
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json  
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/home/ec2-user/chord/config/config.json  
 aws ssm put-parameter --region ap-northeast-1 --name AmazonCloudWatch-linux --type String --value file:~/chord/config/config.json --overwrite  
 
 # cloudwatch verification
@@ -24,6 +26,10 @@ telnet monitoring.ap-northeast-1.amazonaws.com 443
 sudo yum install -y python3-pip python3 python3-setuptools -y  
 pip3 install boto3 pytz pyyaml  
 aws sts get-caller-identity  
+
+
+# start chord
+python3 Node.py 
 
 # setup asg and as
 ## https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html

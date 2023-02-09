@@ -130,7 +130,6 @@ class Node:
                 self.logger.error(error, "\nClient disconnected\n\n")
         # ELSE IF client wants to upload something to network
         elif choice == 1 or choice == -1:
-            self.logger.info(f"Receiving file: {f}")
             fileID = getHash(filename, MAX_NODES)
             self.logger.info(f"Uploading file ID: {fileID}")
             self.filenameList.append(filename)
@@ -432,7 +431,8 @@ class Node:
                         break
                     connection.sendall(fileData)
         except:
-            pass#print("File not found in directory")
+            print("File not found in directory")
+            
         print("File sent")
 
     def receiveFile(self, connection, filename):
