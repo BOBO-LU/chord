@@ -5,7 +5,7 @@
 	},
 	"metrics": {
 		"append_dimensions": {
-			"AutoScalingGroupName": "${aws:AutoScalingGroupName}",
+			"AutoScalingGroupName": "${aws:AutoScalingGroupName}"
 		},
 		"metrics_collected": {
 			"cpu": {
